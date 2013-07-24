@@ -1,0 +1,1 @@
+return string.format( "http://localhost:5000/%s%s", request.host, request.path )
