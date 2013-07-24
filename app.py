@@ -99,7 +99,7 @@ def main(host, path):
         if r.status_code == 200:
             store(r, params)
 
-        return Response(r.content, headers=r.headers)
+        return Response(r.content, headers=r.headers.items())
     except Exception, ex:
         print ex
         traceback.print_exc()
