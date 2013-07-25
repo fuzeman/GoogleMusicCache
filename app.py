@@ -55,13 +55,10 @@ def create_response_from_cache(params):
     )
 
 
-def proxy_request(host, path):
-    print "proxy_request", host, path
-
+def proxy_request():
     try:
         r = requests.get(
-            'http://' + host + '/' + path,
-            params=dict(request.args.items()),
+            'http://' + request.url[request.url.index('/', request.url.index('http://') + 7) + 1:],
             headers=dict(request.headers.items()),
             timeout=5
         )
@@ -75,10 +72,10 @@ def proxy_request(host, path):
 def main(host, path):
     try:
         if path != 'videoplayback':
-            return proxy_request(host, path)
+            return proxy_request()
 
         if 'id' not in request.args or 'range' not in request.args:
-            return proxy_request(host, path)
+            return proxy_request()
 
         params = {
             'id': request.args.get('id'),
