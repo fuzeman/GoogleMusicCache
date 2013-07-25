@@ -4,10 +4,13 @@ import traceback
 from flask import Flask, request, Response
 from gevent.wsgi import WSGIServer
 import requests
+import time
 from werkzeug.datastructures import Headers
 
 app = Flask(__name__)
 CACHE_DIR = os.path.join(os.path.dirname(__file__), 'cache')
+LOG_PATH = os.path.join(os.path.dirname(__file__), 'access.log')
+LOG_FILE = open(LOG_PATH, 'a')
 
 
 def create_directory(path):
@@ -87,6 +90,15 @@ def proxy_request():
         return Response('Gateway Timeout', status=504)
 
 
+def log_request(cache_status, http_status, params):
+    LOG_FILE.write("\t".join([
+        time.time(),
+        cache_status + '/' + http_status,
+        params['id'],
+        params['range']
+    ]))
+
+
 @app.route('/<host>/<path:path>')
 def main(host, path):
     try:
@@ -126,6 +138,7 @@ def main(host, path):
         create_directory(save_dir)
 
         if exists(params):
+            log_request('TCP_HIT', 200, params)
             return create_response_from_cache(params)
 
         r = requests.get('http://' + host + '/' + path, params=params, headers={
@@ -137,6 +150,7 @@ def main(host, path):
         if r.status_code == 200:
             store(r, params)
 
+        log_request('TCP_MISS', r.status_code, params)
         return Response(r.content, headers=r.headers.items())
     except Exception, ex:
         print ex
