@@ -55,9 +55,31 @@ def create_response_from_cache(params):
     )
 
 
+def proxy_request(host, path):
+    print "proxy_request", host, path
+
+    try:
+        r = requests.get(
+            'http://' + host + '/' + path,
+            params=dict(request.args.items()),
+            headers=dict(request.headers.items()),
+            timeout=5
+        )
+
+        return Response(r.content, headers=r.headers)
+    except requests.exceptions.Timeout:
+        return Response('Gateway Timeout', status=504)
+
+
 @app.route('/<host>/<path:path>')
 def main(host, path):
     try:
+        if path != '/videoplayback':
+            return proxy_request(host, path)
+
+        if 'id' not in request.args or 'range' not in request.args:
+            return proxy_request(host, path)
+
         params = {
             'id': request.args.get('id'),
 
