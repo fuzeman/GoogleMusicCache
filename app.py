@@ -66,7 +66,7 @@ def proxy_request(host, path):
             timeout=5
         )
 
-        return Response(r.content, headers=r.headers)
+        return Response(r.content, headers=r.headers.items())
     except requests.exceptions.Timeout:
         return Response('Gateway Timeout', status=504)
 
