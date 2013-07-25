@@ -92,8 +92,8 @@ def proxy_request():
 
 def log_request(cache_status, http_status, params):
     LOG_FILE.write("\t".join([
-        str(time.time()),
-        cache_status + '/' + str(http_status),
+        str(time.time()).ljust(13),
+        (cache_status + '/' + str(http_status)).ljust(8),
         params['id'],
         params['range']
     ]) + '\n')
