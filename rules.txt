@@ -1,0 +1,2 @@
+# Google Music Cache
+googleusercontent.com * lua:volta.lua
