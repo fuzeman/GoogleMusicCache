@@ -67,22 +67,22 @@ def proxy_request():
         url = 'http://' + request.url[request.url.index('/', request.url.index('http://') + 7) + 1:]
         print "proxy_request", url
 
-        headers = dict(request.headers.items())
-        headers.pop('Connection')
-        headers.pop('Host')
-
         r = requests.get(
             url,
-            headers=headers,
+            headers=remove_from_dict(dict(request.headers.items()), [
+                'Connection',
+                'Host'
+            ]),
             timeout=5
         )
 
-        responseHeaders = remove_from_dict(dict(r.headers.items()), [
-            'transfer-encoding',
-            'content-encoding'
-        ])
-
-        return Response(r.content, headers=responseHeaders)
+        return Response(
+            r.content,
+            headers=remove_from_dict(dict(r.headers.items()), [
+                'transfer-encoding',
+                'content-encoding'
+            ])
+        )
     except requests.exceptions.Timeout:
         return Response('Gateway Timeout', status=504)
 
