@@ -55,6 +55,13 @@ def create_response_from_cache(params):
     )
 
 
+def remove_from_dict(d, keys):
+    for key in keys:
+        if key in d:
+            d.pop(key)
+    return d
+
+
 def proxy_request():
     try:
         url = 'http://' + request.url[request.url.index('/', request.url.index('http://') + 7) + 1:]
@@ -64,15 +71,18 @@ def proxy_request():
         headers.pop('Connection')
         headers.pop('Host')
 
-        print headers
-
         r = requests.get(
             url,
-            headers=dict(request.headers.items()),
+            headers=headers,
             timeout=5
         )
 
-        return Response(r.content, headers=r.headers.items())
+        responseHeaders = remove_from_dict(dict(r.headers.items()), [
+            'transfer-encoding',
+            'content-encoding'
+        ])
+
+        return Response(r.content, headers=responseHeaders)
     except requests.exceptions.Timeout:
         return Response('Gateway Timeout', status=504)
 
