@@ -74,7 +74,7 @@ def proxy_request(host, path):
 @app.route('/<host>/<path:path>')
 def main(host, path):
     try:
-        if path != '/videoplayback':
+        if path != 'videoplayback':
             return proxy_request(host, path)
 
         if 'id' not in request.args or 'range' not in request.args:
