@@ -96,7 +96,7 @@ def log_request(cache_status, http_status, params):
         cache_status + '/' + str(http_status),
         params['id'],
         params['range']
-    ]))
+    ]) + '\n')
     LOG_FILE.flush()
 
 
