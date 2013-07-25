@@ -92,11 +92,12 @@ def proxy_request():
 
 def log_request(cache_status, http_status, params):
     LOG_FILE.write("\t".join([
-        time.time(),
+        str(time.time()),
         cache_status + '/' + str(http_status),
-        str(params['id']),
-        str(params['range'])
+        params['id'],
+        params['range']
     ]))
+    LOG_FILE.flush()
 
 
 @app.route('/<host>/<path:path>')
@@ -138,7 +139,7 @@ def main(host, path):
         create_directory(save_dir)
 
         if exists(params):
-            log_request('TCP_HIT', 200, params)
+            log_request('HIT', 200, params)
             return create_response_from_cache(params)
 
         r = requests.get('http://' + host + '/' + path, params=params, headers={
@@ -150,7 +151,7 @@ def main(host, path):
         if r.status_code == 200:
             store(r, params)
 
-        log_request('TCP_MISS', r.status_code, params)
+        log_request('MISS', r.status_code, params)
         return Response(r.content, headers=r.headers.items())
     except Exception, ex:
         print ex
