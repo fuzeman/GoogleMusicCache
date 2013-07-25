@@ -57,6 +57,10 @@ def create_response_from_cache(params):
 
 def proxy_request():
     try:
+        headers = dict(request.headers.items())
+        headers.pop('Connection')
+        headers.pop('Host')
+
         r = requests.get(
             'http://' + request.url[request.url.index('/', request.url.index('http://') + 7) + 1:],
             headers=dict(request.headers.items()),
