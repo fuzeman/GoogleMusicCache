@@ -12,6 +12,8 @@ CACHE_DIR = os.path.join(os.path.dirname(__file__), 'cache')
 LOG_PATH = os.path.join(os.path.dirname(__file__), 'access.log')
 LOG_FILE = open(LOG_PATH, 'a')
 
+DEFAULT_USER_AGENT = 'Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1667.0 Safari/537.36'
+
 
 def create_directory(path):
     try:
@@ -143,7 +145,7 @@ def main(host, path):
             return create_response_from_cache(params)
 
         r = requests.get('http://' + host + '/' + path, params=params, headers={
-            'User-Agent': request.headers['User-Agent']
+            'User-Agent': request.headers.get('User-Agent', DEFAULT_USER_AGENT)
         })
 
         print "response", '(' + str(r.status_code) + ')'
