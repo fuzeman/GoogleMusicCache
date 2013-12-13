@@ -1,7 +1,7 @@
 import os
 import errno
 import traceback
-from flask import Flask, request, Response
+from flask import Flask, request, Response, stream_with_context
 from gevent.wsgi import WSGIServer
 import requests
 import time
@@ -22,6 +22,8 @@ def create_directory(path):
         if exception.errno != errno.EEXIST:
             raise
 
+create_directory(CACHE_DIR)
+print "CACHE_DIR", CACHE_DIR
 
 def get_path(params):
     return os.path.join(CACHE_DIR, params['id'], params['range'])
@@ -78,14 +80,15 @@ def proxy_request():
                 'Connection',
                 'Host'
             ]),
-            timeout=5
+            timeout=5,
+            stream=True
         )
 
         return Response(
-            r.content,
+            stream_with_context(r.iter_content()),
             headers=remove_from_dict(dict(r.headers.items()), [
-                'transfer-encoding',
-                'content-encoding'
+#                'transfer-encoding',
+#                'content-encoding'
             ])
         )
     except requests.exceptions.Timeout:
@@ -162,8 +165,4 @@ def main(host, path):
 
 
 if __name__ == '__main__':
-    create_directory(CACHE_DIR)
-    print "CACHE_DIR", CACHE_DIR
-
-    http_server = WSGIServer(('', 5000), app)
-    http_server.serve_forever()
+    app.run()
